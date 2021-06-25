@@ -1,10 +1,17 @@
 package com.example.shootinggame;
 
 public class Cannon {
+    private static Cannon cannon;
     private int angle;
 
-    public Cannon() {
-        this.angle = 0;
+    private Cannon() {
+        this.angle = 90;
+    }
+    public static Cannon getInstance() {
+        if(cannon == null){
+            cannon = new Cannon();
+        }
+        return cannon;
     }
 
     public int getAngle() {
