@@ -29,12 +29,15 @@ import android.widget.SeekBar;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 public class MainActivity extends AppCompatActivity {
     Display display;
     static int display_width;
     static int display_height;
     int density;
 
+    Button start;
     SeekBar seekBar;
     Button btnShoot;
     ImageView spaceship;
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getRealMetrics(outMetrics);
         density = outMetrics.densityDpi;
 
-
+        start = (Button) findViewById(R.id.start);
         spaceship = (ImageView) findViewById(R.id.spaceship);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         btnShoot = (Button) findViewById(R.id.btnShoot);
@@ -67,7 +70,13 @@ public class MainActivity extends AppCompatActivity {
         BitmapDrawable spaceshipDrawable = (BitmapDrawable) spaceship.getDrawable();
         spaceshipBitmap = spaceshipDrawable.getBitmap();
 
-        generateEnemy();
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                start.setVisibility(View.INVISIBLE);
+                generateEnemy();
+            }
+        });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -126,12 +135,16 @@ public class MainActivity extends AppCompatActivity {
         ImageView enemyImage = new ImageView(getApplicationContext());
         enemyImage.setImageResource(R.drawable.monster);
         enemyImage.setPadding(15, 15, 15, 15);
-        FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(200, 200);
+        FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(150, 150);
         param.gravity=Gravity.TOP;
         skyLayout.addView(enemyImage, param);
         //2. board에 bullet 생성
         Enemy enemy = board.addEnemy(enemyImage);
         enemyImage.setX(enemy.getX());
-        Log.d("enemy.getX", enemy.getX() + "");
+        enemy.getAnimatorSet().start();
+    }
+
+    public void restart() {
+        start.setVisibility(View.VISIBLE);
     }
 }

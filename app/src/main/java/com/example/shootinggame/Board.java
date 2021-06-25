@@ -8,15 +8,15 @@ public class Board {
     private static Board board;
     private Cannon cannon;
     private ArrayList<Enemy> enemies;
-    private ArrayList<Bullet> bullets;
+    public static int bullets;
 
-    private final int life = 3;
-    private final int bulletLimit = 1000;
+    private int life = 3;
+    private final int bulletLimit = 5;
 
     private Board() {
         cannon = Cannon.getInstance();
         enemies = new ArrayList<>();
-        bullets = new ArrayList<>();
+        bullets = 0;
     }
 
     public static Board getInstance() {
@@ -26,13 +26,17 @@ public class Board {
         return board;
     }
 
+    public void start() {
+
+    }
+
     public Cannon getCannon() {
         return cannon;
     }
 
 
     public boolean shootAvailable() {
-        if(bullets.size() > bulletLimit) return false;
+        if(bullets > bulletLimit) return false;
         return true;
     }
 
@@ -40,7 +44,7 @@ public class Board {
     public Bullet shoot(ImageView view) {
         int angle = cannon.getAngle();
         Bullet bullet = new Bullet(view, angle);
-        bullets.add(bullet);
+        bullets++;
 
         return bullet;
     }
@@ -49,5 +53,12 @@ public class Board {
         Enemy e = new Enemy(view);
         enemies.add(e);
         return e;
+    }
+
+    public void removeLife() {
+        life--;
+        if(life <= 0) {
+
+        }
     }
 }

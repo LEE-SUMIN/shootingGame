@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -70,8 +71,8 @@ public class Bullet {
                                             @Override
                                             public void onAnimationEnd(Animator animation) {
                                                 Log.d("getY()", view.getY() + "");
-                                                if(view.getY() < 0) {
-                                                    //TODO: bullet array에서 제거
+                                                if(view.getY() < -100) {
+                                                    Board.bullets--;
                                                 }
                                                 else{
                                                     reflection++;
@@ -90,7 +91,10 @@ public class Bullet {
                                             public void onAnimationRepeat(Animator animation) {
 
                                             }
+
+
                                         });
+
                 animatorSets.add(animatorSet);
                 n--;
                 //dx, dy 값 조정
