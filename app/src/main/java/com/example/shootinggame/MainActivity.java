@@ -122,13 +122,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void generateEnemy() {
+        //1. enemy 이미지 생성
         ImageView enemyImage = new ImageView(getApplicationContext());
         enemyImage.setImageResource(R.drawable.monster);
         enemyImage.setPadding(15, 15, 15, 15);
-        FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(100, 100);
+        FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(200, 200);
         param.gravity=Gravity.TOP;
         skyLayout.addView(enemyImage, param);
-
-        board.addEnemy(enemyImage);
+        //2. board에 bullet 생성
+        Enemy enemy = board.addEnemy(enemyImage);
+        enemyImage.setX(enemy.getX());
+        Log.d("enemy.getX", enemy.getX() + "");
     }
 }

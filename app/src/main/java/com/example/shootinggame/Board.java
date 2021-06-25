@@ -45,8 +45,9 @@ public class Board {
         return bullet;
     }
 
-    public void addEnemy(ImageView view) {
+    public Enemy addEnemy(ImageView view) {
         Enemy e = new Enemy(view);
         enemies.add(e);
+        return e;
     }
 }
