@@ -13,6 +13,13 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:background="@color/black">
+        <LinearLayout
+            android:id="@+id/info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        </LinearLayout>
         <ImageView
             android:id="@+id/spaceship"
             android:layout_width="50dp"
@@ -20,11 +27,12 @@
             android:src="@drawable/spaceship"
             android:layout_gravity="bottom|center_horizontal"
             android:scaleType="centerCrop"/>
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="start"
+            android:background="@android:color/holo_blue_dark"
             android:layout_gravity="center"/>
     </FrameLayout>
 
@@ -50,12 +58,12 @@
                 android:min="1"
                 android:max="179"
                 android:progress="90"/>
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnShoot"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="shoot"
-                android:background="@color/white"/>
+                android:background="@android:color/holo_blue_dark"/>
         </LinearLayout>
     </LinearLayout>
 

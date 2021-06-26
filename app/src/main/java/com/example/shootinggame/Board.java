@@ -10,8 +10,11 @@ public class Board {
     private ArrayList<Enemy> enemies;
     public static int bullets;
 
-    private int life = 3;
-    private final int bulletLimit = 5;
+    private int life;
+    private int lifeLimit;
+    private int bulletLimit;
+
+    private LifeListener lifeListener;
 
     private Board() {
         cannon = Cannon.getInstance();
@@ -26,6 +29,16 @@ public class Board {
         return board;
     }
 
+    public void initListener(LifeListener lifeListener) {
+        this.lifeListener = lifeListener;
+    }
+
+    public void start(int lifeLimit, int bulletLimit) {
+        this.lifeLimit = lifeLimit;
+        this.life = lifeLimit;
+        this.bulletLimit = bulletLimit;
+    }
+
     public void start() {
 
     }
@@ -33,6 +46,8 @@ public class Board {
     public Cannon getCannon() {
         return cannon;
     }
+
+    public int getLifeLimit() { return lifeLimit; }
 
 
     public boolean shootAvailable() {
@@ -57,8 +72,13 @@ public class Board {
 
     public void removeLife() {
         life--;
+        lifeListener.lifeDecrease();
         if(life <= 0) {
-
+            lifeListener.die();
         }
+    }
+
+    public int getLife() {
+        return life;
     }
 }

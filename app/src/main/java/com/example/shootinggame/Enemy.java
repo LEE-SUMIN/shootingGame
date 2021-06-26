@@ -31,7 +31,7 @@ public class Enemy {
     }
 
     private void createAnimator() {
-        ObjectAnimator translationX = ObjectAnimator.ofFloat(view, "translationY", MainActivity.display_height);
+        ObjectAnimator translationX = ObjectAnimator.ofFloat(view, "translationY", MainActivity.display_height * 0.9f);
         animatorSet.play(translationX);
         animatorSet.setDuration(velocity);
         animatorSet.addListener(new Animator.AnimatorListener() {
@@ -42,6 +42,7 @@ public class Enemy {
 
             @Override
             public void onAnimationEnd(Animator animation) {
+
                 Board.getInstance().removeLife();
             }
 

@@ -1,5 +1,6 @@
 package com.example.shootinggame;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.Animator;
@@ -13,6 +14,9 @@ import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -24,19 +28,23 @@ import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LifeListener {
     Display display;
     static int display_width;
     static int display_height;
     int density;
 
+    LinearLayout infoLayout;
     Button start;
     SeekBar seekBar;
     Button btnShoot;
@@ -45,6 +53,10 @@ public class MainActivity extends AppCompatActivity {
 
     Bitmap spaceshipBitmap;
     Board board;
+    ImageView[] lifeViews;
+
+    private Handler handler;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getRealMetrics(outMetrics);
         density = outMetrics.densityDpi;
 
+        infoLayout = (LinearLayout) findViewById(R.id.info);
         start = (Button) findViewById(R.id.start);
         spaceship = (ImageView) findViewById(R.id.spaceship);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
@@ -67,16 +80,37 @@ public class MainActivity extends AppCompatActivity {
         skyLayout = (FrameLayout) findViewById(R.id.sky_layout);
 
         board = Board.getInstance();
+        board.initListener(this);
+
         BitmapDrawable spaceshipDrawable = (BitmapDrawable) spaceship.getDrawable();
         spaceshipBitmap = spaceshipDrawable.getBitmap();
 
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                board.start(1, 5);
+                lifeViews = new ImageView[board.getLifeLimit()];
+                for(int i = 0; i < board.getLifeLimit(); i++){
+                    ImageView heart = new ImageView(getApplicationContext());
+                    heart.setImageResource(R.drawable.heart);
+                    heart.setPadding(15, 0, 15, 0);
+                    lifeViews[i] = heart;
+                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(80, 80);
+                    infoLayout.addView(heart, params);
+                }
                 start.setVisibility(View.INVISIBLE);
                 generateEnemy();
             }
         });
+
+        //TODO: handler
+        handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                super.handleMessage(msg);
+                
+            }
+        };
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -120,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
     }
 
 
@@ -144,7 +180,16 @@ public class MainActivity extends AppCompatActivity {
         enemy.getAnimatorSet().start();
     }
 
-    public void restart() {
+    @Override
+    public void lifeDecrease() {
+        int life = board.getLife();
+        lifeViews[life].setVisibility(View.GONE);
+    }
+
+    @Override
+    public void die() {
         start.setVisibility(View.VISIBLE);
     }
+
+
 }
