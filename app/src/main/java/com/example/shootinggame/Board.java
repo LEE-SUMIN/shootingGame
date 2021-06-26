@@ -72,9 +72,11 @@ public class Board {
 
     public void removeLife() {
         life--;
-        lifeListener.lifeDecrease();
         if(life <= 0) {
             lifeListener.die();
+        }
+        else {
+            lifeListener.lifeDecrease();
         }
     }
 

@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
     Board board;
     ImageView[] lifeViews;
 
-    private Handler handler;
+    Thread enemyThread;
 
 
     @Override
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                board.start(1, 5);
+                board.start(3, 5);
                 lifeViews = new ImageView[board.getLifeLimit()];
                 for(int i = 0; i < board.getLifeLimit(); i++){
                     ImageView heart = new ImageView(getApplicationContext());
@@ -102,15 +102,6 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
                 generateEnemy();
             }
         });
-
-        //TODO: handler
-        handler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                super.handleMessage(msg);
-                
-            }
-        };
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -167,17 +158,40 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
     }
 
     private void generateEnemy() {
-        //1. enemy 이미지 생성
-        ImageView enemyImage = new ImageView(getApplicationContext());
-        enemyImage.setImageResource(R.drawable.monster);
-        enemyImage.setPadding(15, 15, 15, 15);
-        FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(150, 150);
-        param.gravity=Gravity.TOP;
-        skyLayout.addView(enemyImage, param);
-        //2. board에 bullet 생성
-        Enemy enemy = board.addEnemy(enemyImage);
-        enemyImage.setX(enemy.getX());
-        enemy.getAnimatorSet().start();
+        enemyThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    //1. enemy 이미지 생성
+                    ImageView enemyImage = new ImageView(getApplicationContext());
+                    enemyImage.setImageResource(R.drawable.monster);
+                    enemyImage.setPadding(15, 15, 15, 15);
+                    FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(150, 150);
+                    param.gravity=Gravity.TOP;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            skyLayout.addView(enemyImage, param);
+                            //2. board에 bullet 생성
+                            Enemy enemy = board.addEnemy(enemyImage);
+                            enemyImage.setX(enemy.getX());
+                            enemy.getAnimatorSet().start();
+                        }
+                    });
+
+                    //3. sleep
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });
+
+        enemyThread.start();
+
     }
 
     @Override
@@ -188,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
 
     @Override
     public void die() {
+        enemyThread.interrupt();
         start.setVisibility(View.VISIBLE);
     }
 

@@ -10,6 +10,7 @@ import android.widget.ImageView;
 public class Enemy {
     static private int id = 0;
     private int x;
+    private int startOffset;
     private int velocity;
     ImageView view;
     AnimatorSet animatorSet;
@@ -17,6 +18,7 @@ public class Enemy {
     public Enemy(ImageView view) {
         this.view = view;
         this.x = (int) (Math.random() * (MainActivity.display_width - 200));
+        this.startOffset = (int) (Math.random() * 3000 + 1000);
         this.velocity = (int) (Math.random() * 3000 + 7000);
         animatorSet = new AnimatorSet();
         createAnimator();
@@ -34,6 +36,7 @@ public class Enemy {
         ObjectAnimator translationX = ObjectAnimator.ofFloat(view, "translationY", MainActivity.display_height * 0.9f);
         animatorSet.play(translationX);
         animatorSet.setDuration(velocity);
+        animatorSet.setStartDelay(startOffset);
         animatorSet.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -42,7 +45,6 @@ public class Enemy {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-
                 Board.getInstance().removeLife();
             }
 
