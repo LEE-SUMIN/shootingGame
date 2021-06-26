@@ -139,15 +139,15 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
                     //1. bulletImage 생성
                     ImageView bulletImage = new ImageView(getApplicationContext());
                     bulletImage.setImageResource(R.drawable.bullet);
-                    bulletImage.setPadding(15, 15, 15, 15);
-                    FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(60, 60);
-                    param.gravity=Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL;
+                    FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(40, 40);
+                    //param.gravity=Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL;
                     skyLayout.addView(bulletImage, param);
                     //2. board에 bullet 생성
                     Bullet bullet = board.shoot(bulletImage);
                     //3. animator 실행
                     AnimatorSet firstSet = bullet.getFirstAnimatorSet();
                     if(firstSet != null) {
+                        Log.d("테스트", "animator start!");
                         firstSet.start();
                     }
                 }

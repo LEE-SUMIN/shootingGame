@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Board {
     private static Board board;
     private Cannon cannon;
-    private ArrayList<Enemy> enemies;
+    private ArrayList<Enemy> enemyList;
     public static int bullets;
 
     private int life;
@@ -18,7 +18,7 @@ public class Board {
 
     private Board() {
         cannon = Cannon.getInstance();
-        enemies = new ArrayList<>();
+        enemyList = new ArrayList<>();
         bullets = 0;
     }
 
@@ -66,7 +66,7 @@ public class Board {
 
     public Enemy addEnemy(ImageView view) {
         Enemy e = new Enemy(view);
-        enemies.add(e);
+        enemyList.add(e);
         return e;
     }
 
@@ -76,6 +76,10 @@ public class Board {
         if(life <= 0) {
             lifeListener.die();
         }
+    }
+
+    public void removeBullet() {
+        bullets--;
     }
 
     public int getLife() {
