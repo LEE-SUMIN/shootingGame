@@ -7,6 +7,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -144,9 +145,6 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
                 }
             }
         });
-
-
-
     }
 
 
@@ -175,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
                             //2. board에 bullet 생성
                             Enemy enemy = board.addEnemy(enemyImage);
                             enemyImage.setX(enemy.getX());
+                            enemyImage.setY(enemy.getY());
                             enemy.getAnimatorSet().start();
                         }
                     });
@@ -189,9 +188,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
 
             }
         });
-
         enemyThread.start();
-
     }
 
     @Override
@@ -202,8 +199,11 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
 
     @Override
     public void die() {
-        enemyThread.interrupt();
-        start.setVisibility(View.VISIBLE);
+        if(enemyThread != null) {
+            enemyThread.interrupt();
+            Intent intent = new Intent(MainActivity.this, FinishActiivty.class);
+            startActivity(intent);
+        }
     }
 
 
