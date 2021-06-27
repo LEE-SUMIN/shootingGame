@@ -1,49 +1,26 @@
 package com.example.shootinggame;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.animation.Animator;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AnimationSet;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import android.widget.TextView;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.Thread.sleep;
 
 public class MainActivity extends AppCompatActivity implements LifeListener, ConflictListener {
     Display display;
     static int display_width;
     static int display_height;
-    int density;
 
     LinearLayout infoLayout;
     Button start;
@@ -69,9 +46,6 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         display.getRealSize(size);
         display_width = size.x;
         display_height = size.y;
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getRealMetrics(outMetrics);
-        density = outMetrics.densityDpi;
 
         infoLayout = (LinearLayout) findViewById(R.id.info);
         start = (Button) findViewById(R.id.start);
@@ -90,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
             @Override
             public void onClick(View v) {
                 board.start(3, 5);
+                //set life
                 lifeViews = new ImageView[board.getLifeLimit()];
                 for(int i = 0; i < board.getLifeLimit(); i++){
                     ImageView heart = new ImageView(getApplicationContext());
@@ -132,14 +107,12 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                     ImageView bulletImage = new ImageView(getApplicationContext());
                     bulletImage.setImageResource(R.drawable.bullet);
                     FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(40, 40);
-                    //param.gravity=Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL;
                     skyLayout.addView(bulletImage, param);
                     //2. board에 bullet 생성
                     Bullet bullet = board.shoot(bulletImage);
                     //3. animator 실행
                     AnimatorSet firstSet = bullet.getFirstAnimatorSet();
                     if(firstSet != null) {
-                        Log.d("테스트", "animator start!");
                         firstSet.start();
                     }
                 }
@@ -165,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                     enemyImage.setImageResource(R.drawable.monster);
                     enemyImage.setPadding(15, 15, 15, 15);
                     FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(150, 150);
-                    param.gravity=Gravity.TOP;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -180,7 +152,8 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
 
                     //3. sleep
                     try {
-                        Thread.sleep(2000);
+                        int t = (int) (Math.random() * 3000 + 2000);
+                        Thread.sleep(t);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -201,19 +174,18 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
     public void die() {
         if(enemyThread != null) {
             enemyThread.interrupt();
-            board.stop();
+            board.clear();
             Intent intent = new Intent(MainActivity.this, FinishActiivty.class);
             startActivity(intent);
         }
     }
-
 
     @Override
     public void conflict(Enemy e, Bullet b) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                e.remove();
+                e.killed();
                 b.remove();
             }
         });

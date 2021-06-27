@@ -10,10 +10,9 @@ import android.view.View;
 import android.widget.ImageView;
 
 public class Enemy {
-    private int id = 0;
+    private int id;
     private int x;
     private float y;
-    private int startOffset;
     private int velocity;
     private boolean alive;
     ImageView view;
@@ -23,25 +22,15 @@ public class Enemy {
         this.id = id;
         this.view = view;
         this.x = (int) (Math.random() * (MainActivity.display_width - 200));
-        this.y = -200;
-        this.startOffset = (int) (Math.random() * 3000 + 1000);
-        this.velocity = (int) (Math.random() * 3000 + 7000);
+        this.y = 0;
         this.alive = true;
+        this.velocity = (int) (Math.random() * 3000 + 7000);
         animatorSet = new AnimatorSet();
         createAnimator();
     }
 
-    public int getX() {
-        return x;
-    }
-    public float getY() { return y; }
-
-    public AnimatorSet getAnimatorSet() {
-        return animatorSet;
-    }
-
     private void createAnimator() {
-        ValueAnimator translationY = ValueAnimator.ofFloat(y, MainActivity.display_height * 0.8f);
+        ValueAnimator translationY = ValueAnimator.ofFloat(y, MainActivity.display_height * 0.8f - 200f);
         translationY.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -52,7 +41,6 @@ public class Enemy {
         });
         animatorSet.play(translationY);
         animatorSet.setDuration(velocity);
-        animatorSet.setStartDelay(startOffset);
         animatorSet.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -62,11 +50,10 @@ public class Enemy {
             @Override
             public void onAnimationEnd(Animator animation) {
                 if(alive) {
-                    alive = false;
-                    Board board = Board.getInstance();
-                    board.removeEnemy(id);
-                    board.removeLife();
+                    remove();
+                    Board.getInstance().removeLife();
                 }
+
             }
 
             @Override
@@ -81,10 +68,24 @@ public class Enemy {
         });
     }
 
-    public void remove() {
-        view.setVisibility(View.GONE);
-        view.clearAnimation();
+    public AnimatorSet getAnimatorSet() {
+        return animatorSet;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public float getY() { return y; }
+
+    public void killed() {
         alive = false;
+        remove();
+    }
+
+    public void remove() {
+        view.clearAnimation();
+        view.setVisibility(View.GONE);
         Board.getInstance().removeEnemy(id);
     }
 }
