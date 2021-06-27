@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.graphics.Interpolator;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
@@ -15,6 +16,7 @@ import java.util.List;
 
 public class Bullet {
     private ImageView view;
+    private int id;
     private int angle;
     private int velocity;
     private int counter;
@@ -24,8 +26,9 @@ public class Bullet {
     private float x;
     private float y;
 
-    Bullet(ImageView view, int angle) {
+    Bullet(ImageView view, int angle, int id) {
         this.view = view;
+        this.id = id;
         view.setX(MainActivity.display_width / 2f - 30f);
         view.setY(MainActivity.display_height * 0.8f - 200f);
         this.x = view.getX();
@@ -49,6 +52,14 @@ public class Bullet {
         if(counter >= animatorSets.size())
             return null;
         return animatorSets.get(counter);
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
     }
 
     private void createAnimators() {
@@ -102,7 +113,7 @@ public class Bullet {
                                             @Override
                                             public void onAnimationEnd(Animator animation) {
                                                 if(view.getY() < 0) {
-                                                    board.removeBullet();
+                                                    board.removeBullet(id);
                                                 }
                                                 else{
                                                     reflection++;
@@ -136,5 +147,11 @@ public class Bullet {
             }
 
         }
+    }
+
+    public void remove() {
+        view.setVisibility(View.GONE);
+        view.clearAnimation();
+        board.removeBullet(id);
     }
 }

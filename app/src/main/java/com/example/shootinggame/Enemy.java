@@ -6,23 +6,27 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.media.Image;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 public class Enemy {
-    static private int id = 0;
+    private int id = 0;
     private int x;
     private float y;
     private int startOffset;
     private int velocity;
+    private boolean alive;
     ImageView view;
     AnimatorSet animatorSet;
 
-    public Enemy(ImageView view) {
+    public Enemy(ImageView view, int id) {
+        this.id = id;
         this.view = view;
         this.x = (int) (Math.random() * (MainActivity.display_width - 200));
         this.y = -200;
         this.startOffset = (int) (Math.random() * 3000 + 1000);
         this.velocity = (int) (Math.random() * 3000 + 7000);
+        this.alive = true;
         animatorSet = new AnimatorSet();
         createAnimator();
     }
@@ -57,7 +61,12 @@ public class Enemy {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                Board.getInstance().removeLife();
+                if(alive) {
+                    alive = false;
+                    Board board = Board.getInstance();
+                    board.removeEnemy(id);
+                    board.removeLife();
+                }
             }
 
             @Override
@@ -70,5 +79,12 @@ public class Enemy {
 
             }
         });
+    }
+
+    public void remove() {
+        view.setVisibility(View.GONE);
+        view.clearAnimation();
+        alive = false;
+        Board.getInstance().removeEnemy(id);
     }
 }

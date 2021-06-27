@@ -39,7 +39,7 @@ import java.util.List;
 
 import static java.lang.Thread.sleep;
 
-public class MainActivity extends AppCompatActivity implements LifeListener {
+public class MainActivity extends AppCompatActivity implements LifeListener, ConflictListener {
     Display display;
     static int display_width;
     static int display_height;
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
         skyLayout = (FrameLayout) findViewById(R.id.sky_layout);
 
         board = Board.getInstance();
-        board.initListener(this);
+        board.initListener(this, this);
 
         BitmapDrawable spaceshipDrawable = (BitmapDrawable) spaceship.getDrawable();
         spaceshipBitmap = spaceshipDrawable.getBitmap();
@@ -201,10 +201,21 @@ public class MainActivity extends AppCompatActivity implements LifeListener {
     public void die() {
         if(enemyThread != null) {
             enemyThread.interrupt();
+            board.stop();
             Intent intent = new Intent(MainActivity.this, FinishActiivty.class);
             startActivity(intent);
         }
     }
 
 
+    @Override
+    public void conflict(Enemy e, Bullet b) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                e.remove();
+                b.remove();
+            }
+        });
+    }
 }

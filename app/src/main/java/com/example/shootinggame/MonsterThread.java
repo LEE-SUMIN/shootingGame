@@ -5,7 +5,6 @@ public class MonsterThread extends Thread {
     public void run() {
         while(true) {
             try {
-
                 int time = (int) Math.random() * 1000;
                 Thread.sleep(time);
             } catch (InterruptedException e) {
