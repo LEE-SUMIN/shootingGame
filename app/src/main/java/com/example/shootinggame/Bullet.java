@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bullet {
-    private final ImageView view; //MainActivity로 전달 받는 Bullet의 ImageView -> Animator를 할당하기 위한 것
+    private final ImageView view; //MainActivity로 부터 전달 받는 Bullet의 ImageView -> Animator를 할당하기 위한 것
     private final int id; //Board에서 각 Bullet들을 관리하기 위한 id
     private final int velocity; //각 Bullet 마다 랜덤한 속도를 가짐 -> 초기 생성시 자동 결정
     private int angle; //발사될 당시 cannon의 angle
@@ -45,13 +45,13 @@ public class Bullet {
         this.y = view.getY();
         
         this.angle = angle;
-        //Bullet의 속도는 Bullet 마다 랜덤으로 결정되며, 한 번 결정되면 일정하게 움직인다.
+        //Bullet의 속도는 Bullet 마다 랜덤으로 결정되며, 한 번 결정되면 일정하게 움직인다. (0.5~1.5초)
         this.velocity = (int) (Math.random() * 1000 + 500);
         //지그재그로 반사되면서 움직이기 때문에 AnimatorSet들을 담을 수 있는 ArrayList로 관리
         animatorSets = new ArrayList<>();
         //bullet을 포함하고 있는 board 객체
         board = Board.getInstance();
-        //Animator생성
+        //Animator생성: View가 움직일 경로 결정
         createAnimators();
     }
 
@@ -73,7 +73,7 @@ public class Bullet {
                     y = yVal;
                 }
             });
-            animatorSet.playTogether(translationY);
+            animatorSet.play(translationY);
             animatorSet.setDuration(velocity); //초기에 설정된 랜덤 속도(시간)만큼 애니메이션 재생
             animatorSets.add(animatorSet);
         }
@@ -99,8 +99,10 @@ public class Bullet {
                 ValueAnimator translationY = ValueAnimator.ofFloat(curY, nextY); //현재 y좌표 위치 -> 다음 y좌표 위치까지 이동하는 애니메이션
                 animatorSet.playTogether(translationX, translationY); //translationX와 translationY 애니메이션을 동시에 실행 -> 대각선 방향으로 움직이게 함
                 animatorSet.setDuration(velocity); //초기에 설정된 랜덤 속도(시간)만큼 애니메이션 재생
-                
-                //애니메이션 frame 마다 호출되며 View의 좌표 & Bullet 객체의 좌표 값 갱신
+
+                /**
+                 * 애니메이션 frame 마다 호출되며 View의 좌표 & Bullet 객체의 좌표 값(x, y) 갱신
+                 */
                 translationX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
@@ -117,13 +119,16 @@ public class Bullet {
                         y = yVal;
                     }
                 });
-                
-                //지그재그로 움직이려면 "각 직선 = AnimatorSet 하나"를 뜻함 -> 여러 개의 AnimatorSet이 연속적으로 움직여야 지그재그로 움직임
-                //하나의 animatorSet 실행 종료 -> List 상 다음 AnimatorSet 실행
+
+
                 animatorSet.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) { }
 
+                    /**
+                     * 지그재그로 움직이려면 "각 직선 = AnimatorSet 하나"를 뜻함 -> 여러 개의 AnimatorSet이 연속적으로 움직여야 지그재그로 움직임
+                     * 하나의 animatorSet 실행 종료 -> List 상 다음 AnimatorSet 실행
+                     */
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         if(view.getY() < 0) { //bullet이 화면 상을 벗어남 -> bullet 제거
@@ -197,7 +202,7 @@ public class Bullet {
 
     /**
      * Bullet이 Enemy와 충돌한 경우 또는 Bullet이 화면을 벗어난 경우 호출되며,
-     * 현재 Bullet 객체가 가지는 ImageView, Animator를 제거하고 board 상에서 제거함.
+     * 현재 Bullet 객체가 가지는 ImageView, Animator를 제거하고 board 상에서 현재 객체를 제거함.
      */
     public void remove() {
         view.clearAnimation();
