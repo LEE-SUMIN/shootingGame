@@ -14,6 +14,8 @@ public class FinishActiivty extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finish);
+
+        //restart 버튼 클릭 -> MainActivity로 넘어가서 게임 재시작
         restart = (Button) findViewById(R.id.restart);
         restart.setOnClickListener(new View.OnClickListener() {
             @Override
