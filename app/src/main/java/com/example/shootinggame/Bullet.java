@@ -15,17 +15,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bullet {
-    private final ImageView view;
-    private final int id;
-    private final int velocity;
+    private final ImageView view; //MainActivity로 전달 받는 Bullet의 ImageView -> Animator를 할당하기 위한 것
+    private final int id; //Board에서 각 Bullet들을 관리하기 위한 id
+    private final int velocity; //각 Bullet 마다 랜덤한 속도를 가짐 -> 초기 생성시 자동 결정
+    private int angle; //발사될 당시 cannon의 angle
+    private float x; //Bullet의 현재 x좌표
+    private float y; //Bullet의 현재 y좌표
+    private List<AnimatorSet> animatorSets; //Bullet이 움직일 경로 애니메이션 묶음 -> 순차적으로 실행되면서 Z형태로 움직임
 
-    private int angle;
-    private int counter;
-    private int reflection = 0;
-    private List<AnimatorSet> animatorSets;
+    private int counter; //animatorSets에서 현재 실행중인 Animator의 index 값 관리
+    private int reflection = 0; //현재 Bullet객체의 반사된 횟수
+
     private Board board;
-    private float x;
-    private float y;
+
 
     /**
      * Bullet객체 생성자
