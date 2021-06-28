@@ -45,10 +45,18 @@ public class Bullet {
     private void createAnimators() {
         float height = MainActivity.display_height * 0.8f - 200f;
         if(angle == 90) {
-            float nextY = 0;
+            float nextY = -50;
             AnimatorSet animatorSet = new AnimatorSet();
             ValueAnimator translationY = ValueAnimator.ofFloat(this.y, nextY);
-            animatorSet.play(translationY);
+            translationY.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float yVal = (float) animation.getAnimatedValue();
+                    view.setY(yVal);
+                    y = yVal;
+                }
+            });
+            animatorSet.playTogether(translationY);
             animatorSet.setDuration(velocity);
             animatorSets.add(animatorSet);
         }

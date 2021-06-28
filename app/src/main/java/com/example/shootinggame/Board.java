@@ -44,6 +44,7 @@ public class Board {
         this.lifeLimit = lifeLimit;
         this.life = lifeLimit;
         this.bulletLimit = bulletLimit;
+        //conflictDetectorThread 시작
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -64,9 +65,8 @@ public class Board {
 
     public int getLifeLimit() { return lifeLimit; }
 
-
     public boolean shootAvailable() {
-        return bulletHashmap.size() <= bulletLimit;
+        return bulletHashmap.size() < bulletLimit;
     }
 
     public Bullet shoot(ImageView view) {
@@ -100,11 +100,11 @@ public class Board {
 
     public void removeLife() {
         life--;
-        if(life < 0) {
+        if(life <= 0) {
             lifeListener.die();
         }
         else {
-            lifeListener.lifeDecrease();
+            lifeListener.decreaseLife();
         }
     }
 
@@ -116,12 +116,11 @@ public class Board {
         enemyHashMap.remove(id);
     }
 
-
     public void detectConflict() {
         for(int i = 0; i < 10; i++) {
             if(enemyHashMap.containsKey(i)){
                 Enemy e = enemyHashMap.get(i);
-                if(e != null) {
+                if(e != null && e.isALive()) {
                     float ex = e.getX();
                     float ey = e.getY();
                     for(int j = 0; j < 10; j++) {
@@ -158,9 +157,10 @@ public class Board {
             if(enemyHashMap.containsKey(i)) {
                 Enemy e = enemyHashMap.get(i);
                 if(e != null) {
-                    e.killed();
+                    e.remove();
                 }
             }
         }
     }
+
 }

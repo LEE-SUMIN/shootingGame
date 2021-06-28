@@ -78,12 +78,12 @@ public class Enemy {
 
     public float getY() { return y; }
 
-    public void killed() {
-        alive = false;
-        remove();
+    public boolean isALive() {
+        return alive;
     }
 
     public void remove() {
+        alive = false;
         view.clearAnimation();
         view.setVisibility(View.GONE);
         Board.getInstance().removeEnemy(id);

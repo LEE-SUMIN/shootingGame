@@ -16,6 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements LifeListener, ConflictListener {
     Display display;
@@ -63,8 +64,9 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //(1) set board
                 board.start(3, 5);
-                //set life
+                //(2) set life
                 lifeViews = new ImageView[board.getLifeLimit()];
                 for(int i = 0; i < board.getLifeLimit(); i++){
                     ImageView heart = new ImageView(getApplicationContext());
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                     FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(80, 80);
                     infoLayout.addView(heart, params);
                 }
+                //(3) start
                 start.setVisibility(View.INVISIBLE);
                 generateEnemy();
             }
@@ -142,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                         @Override
                         public void run() {
                             skyLayout.addView(enemyImage, param);
-                            //2. board에 bullet 생성
+                            //2. board에 enemy 생성
                             Enemy enemy = board.addEnemy(enemyImage);
                             enemyImage.setX(enemy.getX());
                             enemyImage.setY(enemy.getY());
@@ -152,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
 
                     //3. sleep
                     try {
-                        int t = (int) (Math.random() * 3000 + 2000);
+                        int t = (int) (Math.random() * 3000 + 500);
                         Thread.sleep(t);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -165,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
     }
 
     @Override
-    public void lifeDecrease() {
+    public void decreaseLife() {
         int life = board.getLife();
         lifeViews[life].setVisibility(View.GONE);
     }
@@ -185,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                e.killed();
+                e.remove();
                 b.remove();
             }
         });
