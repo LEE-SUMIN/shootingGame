@@ -236,7 +236,7 @@ public class Board {
     }
 
     /**
-     * 존재하는 bullet과 enemy를 모두 제거한다.
+     * 존재하는 bullet과 enemy를 모두 제거
      * (게임 시작 전에 호출되면서 전체 board를 초기화 할 때 사용)
      */
     public void clear() {
@@ -248,7 +248,7 @@ public class Board {
                 }
             }
         }
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < 30; i++) {
             if(enemyHashMap.containsKey(i)) {
                 Enemy e = enemyHashMap.get(i);
                 if(e != null) {
