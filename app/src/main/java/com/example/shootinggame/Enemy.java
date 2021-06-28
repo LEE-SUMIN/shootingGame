@@ -78,7 +78,7 @@ public class Enemy {
 
     public float getY() { return y; }
 
-    public boolean isALive() {
+    public boolean isAlive() {
         return alive;
     }
 

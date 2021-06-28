@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
     }
 
     @Override
-    public void decreaseLife() {
+    public void lifeDecrease() {
         int life = board.getLife();
         lifeViews[life].setVisibility(View.GONE);
     }
