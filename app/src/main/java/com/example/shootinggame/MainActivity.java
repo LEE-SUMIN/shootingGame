@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements LifeListener, ConflictListener {
     Display display;
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         btnShoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //화면 상에 존재하는 bullet이 일정 개수를 넘지 않았을 경우,
                 if(board.shootAvailable()) {
                     //(1) bulletImage 생성
                     ImageView bulletImage = new ImageView(getApplicationContext());
@@ -230,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Log.d("테스트", "eid: " + e.getId() + " bid: " + b.getId());
                 e.remove();
                 b.remove();
             }

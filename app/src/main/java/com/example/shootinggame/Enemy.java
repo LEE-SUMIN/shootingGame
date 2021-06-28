@@ -124,8 +124,14 @@ public class Enemy {
      */
     public void remove() {
         alive = false;
-        view.clearAnimation();
+        animatorSet.cancel();
         view.setVisibility(View.GONE);
         Board.getInstance().removeEnemy(id);
     }
+
+
+
+
+
+    public int getId() { return id; }
 }

@@ -1,5 +1,6 @@
 package com.example.shootinggame;
 
+import android.util.Log;
 import android.widget.ImageView;
 import java.util.HashMap;
 
@@ -20,6 +21,7 @@ public class Board {
 
     private LifeListener lifeListener; //생명이 하나 감소하거나, 모두 소멸된 경우 MainActivity에 알림
     private ConflictListener conflictListener; //bullet과 enemy가 충돌한 경우 MainActivity에 알림
+    private Thread conflictDetectorThread;
 
 
     private Board() {
@@ -55,20 +57,22 @@ public class Board {
      */
     public void start(int lifeLimit, int bulletLimit) {
         clear(); //이미 존재하는 bullet이나 enemy가 있는 경우 제거
+        Log.d("테스트", "bullet개수: " + bulletHashmap.size() + " enemy개수: " + enemyHashMap.size());
 
         this.lifeLimit = lifeLimit;
         this.life = lifeLimit;
         this.bulletLimit = bulletLimit;
 
         //conflictDetectorThread 시작
-        new Thread(new Runnable() {
+        conflictDetectorThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true) {
                     detectConflict();
                 }
             }
-        }).start();
+        });
+        conflictDetectorThread.start();
     }
 
     /**
@@ -191,14 +195,14 @@ public class Board {
     public void detectConflict() {
         //i라는 id를 가진 enemy가 화면 상에 존재하면(hashMap에 존재하면), 존재하는 bullet 중에 enemy와 충돌하는 것이 있는지 확인.
         //(1) 존재하는 enemy의 좌표 값 -> ex, ey
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < 30; i++) {
             if(enemyHashMap.containsKey(i)){
                 Enemy e = enemyHashMap.get(i);
                 if(e != null && e.isAlive()) {
                     float ex = e.getX();
                     float ey = e.getY();
                     //(2) 존재하는 bullet의 좌표 값 -> bx, by
-                    for(int j = 0; j < 30; j++) {
+                    for(int j = 0; j < 10; j++) {
                         if(bulletHashmap.containsKey(j)){
                             Bullet b = bulletHashmap.get(j);
                             if(b != null) {
@@ -240,6 +244,9 @@ public class Board {
      * (게임 시작 전에 호출되면서 전체 board를 초기화 할 때 사용)
      */
     public void clear() {
+        if(conflictDetectorThread != null) {
+            conflictDetectorThread.interrupt();
+        }
         for(int i = 0; i < 10; i++) {
             if(bulletHashmap.containsKey(i)) {
                 Bullet b = bulletHashmap.get(i);
@@ -257,5 +264,4 @@ public class Board {
             }
         }
     }
-
 }

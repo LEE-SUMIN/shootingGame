@@ -22,6 +22,7 @@ public class Bullet {
     private float x; //Bullet의 현재 x좌표
     private float y; //Bullet의 현재 y좌표
     private List<AnimatorSet> animatorSets; //Bullet이 움직일 경로 애니메이션 묶음 -> 순차적으로 실행되면서 Z형태로 움직임
+    private boolean valid = false;
 
     private int counter; //animatorSets에서 현재 실행중인 Animator의 index 값 관리
     private int reflection = 0; //현재 Bullet객체의 반사된 횟수
@@ -205,8 +206,14 @@ public class Bullet {
      * 현재 Bullet 객체가 가지는 ImageView, Animator를 제거하고 board 상에서 현재 객체를 제거함.
      */
     public void remove() {
-        view.clearAnimation();
+        for(AnimatorSet as : animatorSets) {
+            as.cancel();
+        }
         view.setVisibility(View.GONE);
         board.removeBullet(id);
+    }
+
+    public int getId() {
+        return id;
     }
 }
