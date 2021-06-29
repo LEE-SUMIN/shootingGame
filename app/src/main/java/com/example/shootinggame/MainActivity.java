@@ -38,24 +38,22 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
     Thread conflictThread;
 
 
-    /**
-     *
-     * @param savedInstanceState
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Display 크기 값
-        MyDisplay display = new MyDisplay(getWindowManager().getDefaultDisplay());
+
         
-        //각종 View 초기화
+        //View 초기화
         infoLayout = (LinearLayout) findViewById(R.id.info);
         start = (Button) findViewById(R.id.start);
         spaceship = (ImageView) findViewById(R.id.spaceship);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         btnShoot = (Button) findViewById(R.id.btnShoot);
         skyLayout = (FrameLayout) findViewById(R.id.sky_layout);
+
+        //Display 크기 값
+        MyDisplay display = new MyDisplay(getWindowManager().getDefaultDisplay());
 
         //board 생성
         board = Board.getInstance();
@@ -73,8 +71,6 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                 setLifeViews(board.getLife());
                 //(3) enemy 생성 & 충돌 감지 시작
                 start.setVisibility(View.INVISIBLE);
-                btnShoot.setActivated(true);
-                seekBar.setActivated(true);
                 startEnemyThread();
                 startConflictThread();
             }
@@ -112,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                     skyLayout.addView(bulletImage, param);
                     //(2) board에 bullet 생성
                     Bullet b = board.addBullet(bulletImage);
+                    bulletImage.setX(b.getX());
+                    bulletImage.setY(b.getY());
                     b.start();
                 }
             }
@@ -123,8 +121,8 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
      * @param lifeLimit
      */
     private void setLifeViews(int lifeLimit) {
-        lifeViews = new ImageView[board.getLife()];
-        for(int i = 0; i < board.getLife(); i++){
+        lifeViews = new ImageView[lifeLimit];
+        for(int i = 0; i < lifeLimit; i++){
             ImageView heart = new ImageView(getApplicationContext());
             heart.setImageResource(R.drawable.heart);
             heart.setPadding(15, 0, 15, 0);
@@ -154,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                             skyLayout.addView(enemyImage, param);
                             //(2) board에 enemy 생성
                             Enemy enemy = board.addEnemy(enemyImage);
+                            enemyImage.setX(enemy.getX());
+                            enemyImage.setY(enemy.getY());
                             enemy.start();
                         }
                     });
@@ -206,8 +206,6 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         //board 상에 남아있는 enemy, bullet 객체 제거
         board.clear();
         skyLayout.removeAllViews();
-        btnShoot.setActivated(false);
-        seekBar.setActivated(false);
         //FinishActivity로 전환
         Intent intent = new Intent(MainActivity.this, FinishActiivty.class);
         startActivity(intent);

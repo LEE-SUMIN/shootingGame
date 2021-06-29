@@ -21,12 +21,10 @@ public abstract class Item {
     }
 
     protected void setX(float x) {
-        view.setX(x);
         this.x = x;
     }
 
     protected void setY(float y) {
-        view.setY(y);
         this.y = y;
     }
 
