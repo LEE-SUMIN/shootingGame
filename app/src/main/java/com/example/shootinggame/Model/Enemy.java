@@ -3,8 +3,6 @@ package com.example.shootinggame.Model;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
-import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 
 public class Enemy extends Item {
