@@ -8,7 +8,7 @@ public class MyDisplay {
     static int display_width;
     static int display_height;
 
-    MyDisplay(Display display) {
+    public MyDisplay(Display display) {
         //Display 크기 값
         this.display = display;
         Point size = new Point();

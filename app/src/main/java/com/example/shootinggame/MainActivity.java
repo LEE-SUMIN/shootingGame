@@ -3,8 +3,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.animation.AnimatorSet;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,26 +13,29 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.example.shootinggame.Model.Board;
 import com.example.shootinggame.Model.Bullet;
 import com.example.shootinggame.Model.Enemy;
 import com.example.shootinggame.Model.MyDisplay;
 
+import org.w3c.dom.Text;
+
 public class MainActivity extends AppCompatActivity implements LifeListener, ConflictListener {
     LinearLayout infoLayout;
+    TextView score;
     Button start;
     SeekBar seekBar;
     Button btnShoot;
     ImageView spaceship;
     FrameLayout skyLayout;
 
-    Bitmap spaceshipBitmap;
     Board board;
     ImageView[] lifeViews;
 
     Thread enemyThread;
-    boolean running;
+    Thread conflictThread;
 
 
     /**
@@ -56,31 +59,22 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
 
         //board 생성
         board = Board.getInstance();
-        board.initListener(this, this);
-
-        //cannon ImageView의 Bitmap 생성(회전하기 위함)
-        spaceshipBitmap = getBitmap(spaceship);
+        board.init(this);
         
         //start 버튼 클릭 -> 게임 시작
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int lifeLimit = 3;
+                int bulletLimit = 5;
                 //(1) set board
-                board.start(3, 5);
-                running = true;
+                board.start(lifeLimit, bulletLimit);
                 //(2) set life : 주어진 생명 개수 만큼 heart ImageView 추가
-                lifeViews = new ImageView[board.getLifeLimit()];
-                for(int i = 0; i < board.getLifeLimit(); i++){
-                    ImageView heart = new ImageView(getApplicationContext());
-                    heart.setImageResource(R.drawable.heart);
-                    heart.setPadding(15, 0, 15, 0);
-                    lifeViews[i] = heart;
-                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(80, 80);
-                    infoLayout.addView(heart, params);
-                }
-                //(3) start -> enemy 생성Thread 시작
+                setLifeViews(board.getLife());
+                //(3) 게임 진행 시작
                 start.setVisibility(View.INVISIBLE);
-                generateEnemy();
+                startEnemyThread();
+                startConflictThread();
             }
         });
         
@@ -88,10 +82,8 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int rotate_angle = progress - 90;
                 board.getCannon().setAngle(180 - progress);
-                Bitmap rotated_spaceship = getRotatedBitmap(spaceshipBitmap, rotate_angle);
-                spaceship.setImageBitmap(rotated_spaceship);
+                spaceship.setRotation(progress - 90);
             }
 
             @Override
@@ -117,48 +109,35 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                     FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(40, 40);
                     skyLayout.addView(bulletImage, param);
                     //(2) board에 bullet 생성
-                    Bullet bullet = board.shoot(bulletImage);
-                    //(3) bullet animator 실행
-                    AnimatorSet firstSet = bullet.getFirstAnimatorSet();
-                    if(firstSet != null) {
-                        firstSet.start();
-                    }
+                    Bullet b = board.addBullet(bulletImage);
+                    //bulletImage.setX(b.getX());
+                    //bulletImage.setY(b.getY());
+                    b.start();
                 }
             }
         });
     }
 
-    /**
-     * Cannon의 ImageView를 Bitmap으로 변환 (회전하기 위함)
-     * @param view
-     * @return
-     */
-    private Bitmap getBitmap(ImageView view) {
-        BitmapDrawable spaceshipDrawable = (BitmapDrawable) view.getDrawable();
-        return spaceshipDrawable.getBitmap();
-    }
-
-    /**
-     * Bitmap을 주어진 각도 만큼 회전
-     * @param bitmap : Cannon의 Bitmap 
-     * @param degrees : 회전 시킬 각도
-     * @return
-     */
-    private Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) {
-        if(degrees == 0) return bitmap;
-        Matrix m = new Matrix();
-        m.postRotate(degrees);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+    private void setLifeViews(int lifeLimit) {
+        lifeViews = new ImageView[board.getLife()];
+        for(int i = 0; i < board.getLife(); i++){
+            ImageView heart = new ImageView(getApplicationContext());
+            heart.setImageResource(R.drawable.heart);
+            heart.setPadding(15, 0, 15, 0);
+            lifeViews[i] = heart;
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(80, 80);
+            infoLayout.addView(heart, params);
+        }
     }
 
     /**
      * Enemy 생성 thread 실행
      */
-    private void generateEnemy() {
+    private void startEnemyThread() {
         enemyThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(running) {
+                while(board.isRunning()) {
                     //(1) enemy 이미지 생성
                     ImageView enemyImage = new ImageView(getApplicationContext());
                     enemyImage.setImageResource(R.drawable.monster);
@@ -170,9 +149,9 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                             skyLayout.addView(enemyImage, param);
                             //(2) board에 enemy 생성
                             Enemy enemy = board.addEnemy(enemyImage);
-                            enemyImage.setX(enemy.getX());
-                            enemyImage.setY(enemy.getY());
-                            enemy.getAnimatorSet().start();
+                            //enemyImage.setX(enemy.getX());
+                            //enemyImage.setY(enemy.getY());
+                            enemy.start();
                         }
                     });
 
@@ -190,6 +169,19 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         enemyThread.start();
     }
 
+    private void startConflictThread() {
+        conflictThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(board.isRunning()) {
+                    board.detectConflict();
+                }
+            }
+        });
+        conflictThread.start();
+    }
+
+
     /**
      * LifeListener 인터페이스 구현 함수 -> Board에서 생명 감소할 때 호출됨
      */
@@ -204,11 +196,8 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
      * LifeListener 인터페이스 구현 함수 -> Board에서 주어진 생명을 모두 소모한 경우 호출됨
      */
     @Override
-    public void die() {
+    public void gameOver() {
         if(enemyThread != null) {
-            running = false;
-            //enemy 생성 Thread 중지
-            enemyThread.interrupt();
             //board 상에 남아있는 enemy, bullet 객체 제거
             board.clear();
             skyLayout.removeAllViews();
@@ -226,11 +215,10 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
      */
     @Override
     public boolean conflict(Enemy e, Bullet b) {
-        if(e.isAlive() && b.isValid()) {
+        if(e.isValid() && b.isValid()) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d("테스트", "eid: " + e.getId() + " bid: " + b.getId() + " " + e.isAlive() + " " + b.isValid());
                     e.remove();
                     b.remove();
                 }

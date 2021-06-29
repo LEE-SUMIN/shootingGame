@@ -5,5 +5,5 @@ package com.example.shootinggame;
  */
 public interface LifeListener {
     public void decreaseLife(); //생명이 하나 감소했음을 알려줌
-    public void die(); //초기 설정된 생명을 모두 소모했을 경우 알려줌 -> 게임 종료 요청
+    public void gameOver(); //초기 설정된 생명을 모두 소모했을 경우 알려줌 -> 게임 종료 요청
 }
