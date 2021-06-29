@@ -48,7 +48,6 @@ public class Enemy extends Item {
         });
         animatorSet.play(translationY);
         animatorSet.setDuration(velocity); //초기에 설정된 랜덤 속도(시간)만큼 애니메이션 재생
-
         animatorSet.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -66,18 +65,13 @@ public class Enemy extends Item {
                     board.removeLife();
                     remove();
                 }
-
             }
 
             @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
+            public void onAnimationCancel(Animator animation) { }
 
             @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
+            public void onAnimationRepeat(Animator animation) { }
         });
     }
 

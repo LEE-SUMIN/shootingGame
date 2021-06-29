@@ -8,8 +8,11 @@ public class MyDisplay {
     static int display_width;
     static int display_height;
 
+    /**
+     * display 크기 상수 관리
+     * @param display
+     */
     public MyDisplay(Display display) {
-        //Display 크기 값
         this.display = display;
         Point size = new Point();
         display.getRealSize(size);

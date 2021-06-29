@@ -29,6 +29,7 @@ public abstract class Item {
         view.setY(y);
         this.y = y;
     }
+
     public float getX() {
         return x;
     }
@@ -37,6 +38,10 @@ public abstract class Item {
         return y;
     }
 
+    /**
+     * 충돌이 일어나지 않았는지, 화면을 벗어나지 않았는지 확인
+     * @return
+     */
     public boolean isValid() {
         return alive;
     }

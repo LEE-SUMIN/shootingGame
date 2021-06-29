@@ -69,10 +69,12 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                 int bulletLimit = 5;
                 //(1) set board
                 board.start(lifeLimit, bulletLimit);
-                //(2) set life : 주어진 생명 개수 만큼 heart ImageView 추가
+                //(2) 주어진 생명 개수 만큼 heart ImageView 추가
                 setLifeViews(board.getLife());
-                //(3) 게임 진행 시작
+                //(3) enemy 생성 & 충돌 감지 시작
                 start.setVisibility(View.INVISIBLE);
+                btnShoot.setActivated(true);
+                seekBar.setActivated(true);
                 startEnemyThread();
                 startConflictThread();
             }
@@ -110,14 +112,16 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                     skyLayout.addView(bulletImage, param);
                     //(2) board에 bullet 생성
                     Bullet b = board.addBullet(bulletImage);
-                    //bulletImage.setX(b.getX());
-                    //bulletImage.setY(b.getY());
                     b.start();
                 }
             }
         });
     }
 
+    /**
+     * 화면 좌측 상단에 생명 개수만큼 heart ImageView 생성
+     * @param lifeLimit
+     */
     private void setLifeViews(int lifeLimit) {
         lifeViews = new ImageView[board.getLife()];
         for(int i = 0; i < board.getLife(); i++){
@@ -137,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         enemyThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                //게임이 실행 중인 경우에만 실행되도록 함
                 while(board.isRunning()) {
                     //(1) enemy 이미지 생성
                     ImageView enemyImage = new ImageView(getApplicationContext());
@@ -149,8 +154,6 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                             skyLayout.addView(enemyImage, param);
                             //(2) board에 enemy 생성
                             Enemy enemy = board.addEnemy(enemyImage);
-                            //enemyImage.setX(enemy.getX());
-                            //enemyImage.setY(enemy.getY());
                             enemy.start();
                         }
                     });
@@ -169,10 +172,14 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         enemyThread.start();
     }
 
+    /**
+     * 충돌 감지 thread 실행
+     */
     private void startConflictThread() {
         conflictThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                //게임이 실행 중인 경우에만 실행되도록 함
                 while(board.isRunning()) {
                     board.detectConflict();
                 }
@@ -181,13 +188,12 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         conflictThread.start();
     }
 
-
     /**
      * LifeListener 인터페이스 구현 함수 -> Board에서 생명 감소할 때 호출됨
      */
     @Override
     public void decreaseLife() {
-        //생명 개수를 나타내는 heart ImageView 조정
+        //줄어든 생명 개수에 맞게 heart ImageView 조정
         int life = board.getLife();
         lifeViews[life].setVisibility(View.GONE);
     }
@@ -197,15 +203,14 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
      */
     @Override
     public void gameOver() {
-        if(enemyThread != null) {
-            //board 상에 남아있는 enemy, bullet 객체 제거
-            board.clear();
-            skyLayout.removeAllViews();
-            //FinishActivity로 전환
-            Intent intent = new Intent(MainActivity.this, FinishActiivty.class);
-            startActivity(intent);
-
-        }
+        //board 상에 남아있는 enemy, bullet 객체 제거
+        board.clear();
+        skyLayout.removeAllViews();
+        btnShoot.setActivated(false);
+        seekBar.setActivated(false);
+        //FinishActivity로 전환
+        Intent intent = new Intent(MainActivity.this, FinishActiivty.class);
+        startActivity(intent);
     }
 
     /**
@@ -214,17 +219,13 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
      * @param b : 제거할 bullet 객체
      */
     @Override
-    public boolean conflict(Enemy e, Bullet b) {
-        if(e.isValid() && b.isValid()) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    e.remove();
-                    b.remove();
-                }
-            });
-            return true;
-        }
-        return false;
+    public void conflict(Enemy e, Bullet b) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                e.remove();
+                b.remove();
+            }
+        });
     }
 }
