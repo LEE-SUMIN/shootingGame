@@ -4,26 +4,22 @@ import android.animation.AnimatorSet;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import com.example.shootinggame.Model.Board;
+import com.example.shootinggame.Model.Bullet;
+import com.example.shootinggame.Model.Enemy;
+import com.example.shootinggame.Model.MyDisplay;
 
 public class MainActivity extends AppCompatActivity implements LifeListener, ConflictListener {
-    Display display;
-    static int display_width;
-    static int display_height;
-
     LinearLayout infoLayout;
     Button start;
     SeekBar seekBar;
@@ -36,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
     ImageView[] lifeViews;
 
     Thread enemyThread;
+    boolean running;
 
 
     /**
@@ -47,11 +44,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Display 크기 값
-        display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getRealSize(size);
-        display_width = size.x;
-        display_height = size.y;
+        MyDisplay display = new MyDisplay(getWindowManager().getDefaultDisplay());
         
         //각종 View 초기화
         infoLayout = (LinearLayout) findViewById(R.id.info);
@@ -74,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
             public void onClick(View v) {
                 //(1) set board
                 board.start(3, 5);
+                running = true;
                 //(2) set life : 주어진 생명 개수 만큼 heart ImageView 추가
                 lifeViews = new ImageView[board.getLifeLimit()];
                 for(int i = 0; i < board.getLifeLimit(); i++){
@@ -164,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         enemyThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true) {
+                while(running) {
                     //(1) enemy 이미지 생성
                     ImageView enemyImage = new ImageView(getApplicationContext());
                     enemyImage.setImageResource(R.drawable.monster);
@@ -212,13 +206,16 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
     @Override
     public void die() {
         if(enemyThread != null) {
+            running = false;
             //enemy 생성 Thread 중지
             enemyThread.interrupt();
             //board 상에 남아있는 enemy, bullet 객체 제거
             board.clear();
+            skyLayout.removeAllViews();
             //FinishActivity로 전환
             Intent intent = new Intent(MainActivity.this, FinishActiivty.class);
             startActivity(intent);
+
         }
     }
 
@@ -228,14 +225,18 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
      * @param b : 제거할 bullet 객체
      */
     @Override
-    public void conflict(Enemy e, Bullet b) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("테스트", "eid: " + e.getId() + " bid: " + b.getId());
-                e.remove();
-                b.remove();
-            }
-        });
+    public boolean conflict(Enemy e, Bullet b) {
+        if(e.isAlive() && b.isValid()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("테스트", "eid: " + e.getId() + " bid: " + b.getId() + " " + e.isAlive() + " " + b.isValid());
+                    e.remove();
+                    b.remove();
+                }
+            });
+            return true;
+        }
+        return false;
     }
 }

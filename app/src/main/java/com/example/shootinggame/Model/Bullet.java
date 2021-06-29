@@ -1,14 +1,9 @@
-package com.example.shootinggame;
+package com.example.shootinggame.Model;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.graphics.Interpolator;
-import android.util.Log;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -22,7 +17,7 @@ public class Bullet {
     private float x; //Bullet의 현재 x좌표
     private float y; //Bullet의 현재 y좌표
     private List<AnimatorSet> animatorSets; //Bullet이 움직일 경로 애니메이션 묶음 -> 순차적으로 실행되면서 Z형태로 움직임
-    private boolean valid = false;
+    private boolean alive = true;
 
     private int counter; //animatorSets에서 현재 실행중인 Animator의 index 값 관리
     private int reflection = 0; //현재 Bullet객체의 반사된 횟수
@@ -40,15 +35,14 @@ public class Bullet {
         this.view = view;
         this.id = id;
         //view의 초기 위치 설정(Cannon 위치와 비슷하게 둔다)
-        view.setX(MainActivity.display_width / 2f - 30f);
-        view.setY(MainActivity.display_height * 0.8f - 200f);
+        view.setX(MyDisplay.display_width / 2f - 30f);
+        view.setY(MyDisplay.display_height * 0.8f - 200f);
         this.x = view.getX();
         this.y = view.getY();
         
         this.angle = angle;
-        //Bullet의 속도는 Bullet 마다 랜덤으로 결정되며, 한 번 결정되면 일정하게 움직인다. (0.5~1.5초)
-        this.velocity = (int) (Math.random() * 1000 + 500);
-        //지그재그로 반사되면서 움직이기 때문에 AnimatorSet들을 담을 수 있는 ArrayList로 관리
+        //Bullet의 속도는 Bullet 마다 랜덤으로 결정되며, 한 번 결정되면 일정하게 움직인다. (0.5~3초)
+        this.velocity = (int) (Math.random() * 1000 + 2000);
         animatorSets = new ArrayList<>();
         //bullet을 포함하고 있는 board 객체
         board = Board.getInstance();
@@ -60,7 +54,7 @@ public class Bullet {
      * bullet의 ImageView가 가질 Animator 생성
      */
     private void createAnimators() {
-        float height = MainActivity.display_height * 0.8f - 200f; //bullet이 움직일 수 있는 공간의 높이
+        float height = MyDisplay.display_height * 0.8f - 200f; //bullet이 움직일 수 있는 공간의 높이
         //bullet의 각도가 90도인 경우 -> 일직선으로 올라간다.
         if(angle == 90) {
             float nextY = -50; //bullet이 움직여야할 다음 y좌표
@@ -85,15 +79,15 @@ public class Bullet {
             float curX = x;
             float curY = y;
             //움직여야 할 다음 위치
-            float nextX = angle > 90 ? 0 : MainActivity.display_width;
-            float nextY = (float) (height - (MainActivity.display_width / 2f) * Math.abs(Math.tan(Math.toRadians(angle))));
+            float nextX = angle > 90 ? 0 : MyDisplay.display_width;
+            float nextY = (float) (height - (MyDisplay.display_width / 2f) * Math.abs(Math.tan(Math.toRadians(angle))));
             //반사가 진행될수록 움직여야 할 다음 위치의 y좌표 값을 증가시키기 위한 변수
             int offset = 0;
             
             while(curY >= 0) { //현재 위치가 화면 최상단을 벗어날 때 까지 진행
                 offset++;
                 //x좌표 이동 범위 조정(bullet 너비 만큼 빼기)
-                float limit_x = nextX < MainActivity.display_width / 2f ? nextX : nextX - 40;
+                float limit_x = nextX < MyDisplay.display_width / 2f ? nextX : nextX - 40;
                 
                 AnimatorSet animatorSet = new AnimatorSet();
                 ValueAnimator translationX = ValueAnimator.ofFloat(curX, limit_x); //현재 x좌표 위치 -> 다음 x좌표 위치까지 이동하는 애니메이션
@@ -137,9 +131,9 @@ public class Bullet {
                         }
                         else{
                             reflection++; //하나의 애니메이션이 종료됐고, 아직 y좌표가 0보다 작다면(화면 상에 존재한다면) 반사가 한 번 일어난 것 -> reflection 변수 증가
-                            AnimatorSet set = getNextAnimatorSet(); //다음 차례 AnimatorSet을 가져와서
-                            if(set != null)                         //null이 아니라면
-                                set.start();                        //실행한다
+                            AnimatorSet set = getNextAnimatorSet(); //다음 차례 AnimatorSet을 실행한다
+                            if(set != null)
+                                set.start();
                         }
                     }
 
@@ -158,8 +152,8 @@ public class Bullet {
                 curX = limit_x;
                 curY = nextY;
                 //다시 다음 위치를 설정해준다.
-                nextX = angle > 90 ? 0 : MainActivity.display_width; //x좌표는 움직이는 각도가 90도 미만일 경우 오른쪽 끝, 90도 초과일 경우 왼쪽 끝
-                nextY = (float) (height - offset * MainActivity.display_width * Math.abs(Math.tan(Math.toRadians(angle)))); //y좌표는 처음을 제외하고 항상 (화면 가로 길이) * (tan(angle)) 만큼 이동한다.
+                nextX = angle > 90 ? 0 : MyDisplay.display_width; //x좌표는 움직이는 각도가 90도 미만일 경우 오른쪽 끝, 90도 초과일 경우 왼쪽 끝
+                nextY = (float) (height - offset * MyDisplay.display_width * Math.abs(Math.tan(Math.toRadians(angle)))); //y좌표는 처음을 제외하고 항상 (화면 가로 길이) * (tan(angle)) 만큼 이동한다.
             }
 
         }
@@ -201,6 +195,11 @@ public class Bullet {
         return y;
     }
 
+    public boolean isValid() {
+        if(reflection > 0 && alive) return true;
+        return false;
+    }
+
     /**
      * Bullet이 Enemy와 충돌한 경우 또는 Bullet이 화면을 벗어난 경우 호출되며,
      * 현재 Bullet 객체가 가지는 ImageView, Animator를 제거하고 board 상에서 현재 객체를 제거함.
@@ -208,7 +207,9 @@ public class Bullet {
     public void remove() {
         for(AnimatorSet as : animatorSets) {
             as.cancel();
+            as.removeAllListeners();
         }
+        alive = false;
         view.setVisibility(View.GONE);
         board.removeBullet(id);
     }

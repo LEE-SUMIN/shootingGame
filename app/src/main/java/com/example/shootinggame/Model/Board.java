@@ -1,7 +1,12 @@
-package com.example.shootinggame;
+package com.example.shootinggame.Model;
 
 import android.util.Log;
 import android.widget.ImageView;
+
+import com.example.shootinggame.ConflictListener;
+import com.example.shootinggame.ConflictThread;
+import com.example.shootinggame.LifeListener;
+
 import java.util.HashMap;
 
 public class Board {
@@ -21,7 +26,7 @@ public class Board {
 
     private LifeListener lifeListener; //생명이 하나 감소하거나, 모두 소멸된 경우 MainActivity에 알림
     private ConflictListener conflictListener; //bullet과 enemy가 충돌한 경우 MainActivity에 알림
-    private Thread conflictDetectorThread;
+    private ConflictThread conflictThread;
 
 
     private Board() {
@@ -64,15 +69,8 @@ public class Board {
         this.bulletLimit = bulletLimit;
 
         //conflictDetectorThread 시작
-        conflictDetectorThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    detectConflict();
-                }
-            }
-        });
-        conflictDetectorThread.start();
+        conflictThread = new ConflictThread();
+        conflictThread.start();
     }
 
     /**
@@ -159,16 +157,22 @@ public class Board {
     /**
      * 생명이 하나 감소될 때 호출되면서 board가 갖는 life변수를 1 감소시키고,
      * lifeListener의 함수를 호출함으로써 MainActivity에 알림 -> heart ImageView 조정 or FinishActivity로 넘어감
+     * @param id
      */
-    public void removeLife() {
-        life--;
-        if(life <= 0) {
-            //존재하는 생명을 모두 소모하여 게임을 종료해야 하는 경우
-            lifeListener.die();
+    public void removeLife(int id) {
+        Log.d("테스트", "죽은id: " + id);
+        Enemy e = enemyHashMap.get(id);
+        if(e != null && e.isAlive()) {
+            life--;
+            if(life <= 0) {
+                //존재하는 생명을 모두 소모하여 게임을 종료해야 하는 경우
+                lifeListener.die();
+            }
+            else {
+                lifeListener.decreaseLife();
+            }
         }
-        else {
-            lifeListener.decreaseLife();
-        }
+        e.remove();
     }
 
     /**
@@ -201,25 +205,37 @@ public class Board {
                 if(e != null && e.isAlive()) {
                     float ex = e.getX();
                     float ey = e.getY();
-                    //(2) 존재하는 bullet의 좌표 값 -> bx, by
-                    for(int j = 0; j < 10; j++) {
-                        if(bulletHashmap.containsKey(j)){
-                            Bullet b = bulletHashmap.get(j);
-                            if(b != null) {
-                                float bx = b.getX();
-                                float by = b.getY();
-                                //(3) 각 좌표를 검사하여 중첩되었는지(충돌했는지) 확인
-                                if(conflict(ex, ey, bx, by)) {
-                                    //충돌이 감지되면 conflictListener를 호출하여 MainActivity에 알린다. -> bullet ImageView, enemy ImageView 조정
-                                    conflictListener.conflict(e, b);
-                                }
-                            }
-                        }
+                    //(2) enemy와 충돌하는 bullet이 있는지 확인
+                    Bullet b = findBullet(ex, ey);
+                    if(b != null) {
+                        conflictListener.conflict(e, b);
                     }
                 }
             }
 
         }
+    }
+
+    /**
+     * 주어진 enemy 좌표와 충돌하는 bullet이 있는지 확인
+     * @param ex : enemy의 x좌표
+     * @param ey : enemy의 y좌표
+     * @return
+     */
+    public Bullet findBullet(float ex, float ey) {
+        for(int j = 0; j < 30; j++) {
+            if(bulletHashmap.containsKey(j)) {
+                Bullet b = bulletHashmap.get(j);
+                if(b != null && b.isValid()) {
+                    float bx = b.getX();
+                    float by = b.getY();
+                    if(conflict(ex, ey, bx, by)) {
+                        return b;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -244,8 +260,8 @@ public class Board {
      * (게임 시작 전에 호출되면서 전체 board를 초기화 할 때 사용)
      */
     public void clear() {
-        if(conflictDetectorThread != null) {
-            conflictDetectorThread.interrupt();
+        if(conflictThread != null) {
+            conflictThread.interrupt();
         }
         for(int i = 0; i < 10; i++) {
             if(bulletHashmap.containsKey(i)) {
@@ -263,5 +279,7 @@ public class Board {
                 }
             }
         }
+        bulletHashmap.clear();
+        enemyHashMap.clear();
     }
 }

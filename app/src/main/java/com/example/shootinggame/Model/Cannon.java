@@ -1,4 +1,4 @@
-package com.example.shootinggame;
+package com.example.shootinggame.Model;
 
 public class Cannon {
     private static Cannon cannon;

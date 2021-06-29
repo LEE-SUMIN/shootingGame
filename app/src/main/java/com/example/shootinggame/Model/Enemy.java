@@ -1,10 +1,8 @@
-package com.example.shootinggame;
+package com.example.shootinggame.Model;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.media.Image;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -30,7 +28,7 @@ public class Enemy {
         this.view = view;
         this.id = id;
         //(2) view의 초기 위치/속도 설정
-        this.x = (float) (Math.random() * (MainActivity.display_width - 200)); //x좌표는 랜덤
+        this.x = (float) (Math.random() * (MyDisplay.display_width - 200)); //x좌표는 랜덤
         this.y = 0; //y좌표는 화면 최상단에서부터 출발
         this.velocity = (int) (Math.random() * 3000 + 7000); //Enemy의 속도는 Enemy 마다 랜덤으로 결정되며, 한 번 결정되면 일정하게 움직인다. (7~10초)
         this.alive = true;
@@ -43,7 +41,7 @@ public class Enemy {
      * enemy의 ImageView가 움직일 경로 Animator 생성
      */
     private void createAnimator() {
-        float height = MainActivity.display_height * 0.8f - 200f; //enemy가 움직일 수 있는 공간의 높이
+        float height = MyDisplay.display_height * 0.8f - 200f; //enemy가 움직일 수 있는 공간의 높이
         ValueAnimator translationY = ValueAnimator.ofFloat(y, height); //현재 y좌표 위치에서 화면 최하단까지 움직이는 애니메이션
         translationY.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -70,8 +68,8 @@ public class Enemy {
             @Override
             public void onAnimationEnd(Animator animation) {
                 if(alive) {
-                    remove(); //애니메이션이 종료된 Enemy객체는 더이상 필요 없으므로 제거
-                    Board.getInstance().removeLife();
+                    Board.getInstance().removeLife(id);
+                    Log.d("테스트", "onAnimationEnd called");
                 }
 
             }
@@ -125,6 +123,7 @@ public class Enemy {
     public void remove() {
         alive = false;
         animatorSet.cancel();
+        animatorSet.removeAllListeners();
         view.setVisibility(View.GONE);
         Board.getInstance().removeEnemy(id);
     }
