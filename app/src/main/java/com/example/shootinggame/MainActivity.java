@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
         board = Board.getInstance();
         board.init(this);
         
-        //start 버튼 클릭 -> 게임 시작
+        //1. start 버튼 클릭 -> 게임 시작
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
             }
         });
         
-        //seekbar 조정 -> cannon 각도 조정 + cannon ImageView 회전
+        //2. seekbar 조정 -> cannon 각도 조정 + cannon ImageView 회전
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
             }
         });
         
-        //shoot 버튼 클릭 -> bullet 생성
+        //3. shoot 버튼 클릭 -> bullet 생성
         btnShoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -182,16 +182,19 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
      * LifeListener 인터페이스 구현 함수 -> Board에서 생명 감소할 때 호출됨
      */
     @Override
-    public void decreaseLife() {
-        //줄어든 생명 개수에 맞게 heart ImageView 조정
-        int life = board.getLife();
-        lifeViews[life].setVisibility(View.GONE);
+    public void decreaseLife(int life) {
+        if(life <= 0) { //남은 life가 없는 경우 -> 게임 종료
+            gameOver();
+        }
+        else { //감소된 life만큼 heart ImageView 조정
+            lifeViews[life].setVisibility(View.GONE);
+        }
     }
 
     /**
-     * LifeListener 인터페이스 구현 함수 -> Board에서 주어진 생명을 모두 소모한 경우 호출됨
+     *
      */
-    @Override
+
     public void gameOver() {
         //board 상에 남아있는 enemy, bullet 객체 제거
         board.clear();

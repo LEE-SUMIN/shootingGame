@@ -141,12 +141,7 @@ public class Board {
      */
     public void removeLife() {
         life--;
-        if(life <= 0) { //존재하는 생명을 모두 소모하여 게임을 종료해야 하는 경우
-            lifeListener.gameOver();
-        }
-        else {
-            lifeListener.decreaseLife();
-        }
+        lifeListener.decreaseLife(life);
     }
 
     /**
