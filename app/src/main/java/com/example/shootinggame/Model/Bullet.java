@@ -52,7 +52,7 @@ public class Bullet extends Item {
         float height = MyDisplay.display_height * 0.8f - 200f; //bullet이 움직일 수 있는 공간의 높이
         //bullet의 각도가 90도인 경우 -> 일직선으로 올라간다.
         if(angle == 90) {
-            float nextY = -50; //bullet이 움직여야할 다음 y좌표
+            float nextY = -50; //bullet이 움직여야할 다음 y좌표 = 화면 최상단
             AnimatorSet animatorSet = new AnimatorSet();
             ValueAnimator translationY = ValueAnimator.ofFloat(this.y, nextY); //현재 y위치에서 다음 y위치까지 움직이는 애니메이션
             translationY.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -194,6 +194,6 @@ public class Bullet extends Item {
         for(AnimatorSet as : animatorSets) { //진행 중인 애니메이션이 끝나도 아무런 일이 발생하지 않도록 함
             as.removeAllListeners();
         }
-        board.removeBullet(id); //board에서 해당 bullet 제거
+        board.removeBullet(id); //board에서 해당 bullet 제거 요청
     }
 }

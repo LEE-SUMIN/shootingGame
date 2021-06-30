@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                     Bullet b = board.addBullet(bulletImage);
                     bulletImage.setX(b.getX());
                     bulletImage.setY(b.getY());
+                    //(3) bullet 애니메이션 재생
                     b.start();
                 }
             }
@@ -144,11 +145,12 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
                             Enemy enemy = board.addEnemy(enemyImage);
                             enemyImage.setX(enemy.getX());
                             enemyImage.setY(enemy.getY());
+                            //(3) enemy 애니메이션 재생
                             enemy.start();
                         }
                     });
 
-                    //(3) sleep : enemy 생성 시간도 랜덤하게 주기 위해 sleep 시간 랜덤으로 설정(0.5 ~ 3.5초)
+                    //(4) sleep : enemy 생성 시간도 랜덤하게 주기 위해 sleep 시간 랜덤으로 설정(0.5 ~ 3.5초)
                     try {
                         int t = (int) (Math.random() * 3000 + 500);
                         Thread.sleep(t);
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
     }
 
     /**
-     *
+     * 게임이 종료되는 경우, 남아있는 객체들을 제거하고 FinishActivity로 전환됨
      */
 
     public void gameOver() {
@@ -206,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements LifeListener, Con
 
     /**
      * ConflictListener 인터페이스 구현 함수 -> Board에서 bullet과 enemy의 충돌을 감지한 경우 호출됨
+     * 충돌한 enemy와 bullet객체를 제거한다.
      * @param e : 제거할 enemy 객체
      * @param b : 제거할 bullet 객체
      */

@@ -35,7 +35,7 @@ public class Enemy extends Item {
     @Override
     protected void createAnimators() {
         float height = MyDisplay.display_height * 0.8f - 200f; //enemy가 움직일 수 있는 공간의 높이
-        ValueAnimator translationY = ValueAnimator.ofFloat(y, height); //현재 y좌표 위치에서 화면 최하단까지 움직이는 애니메이션
+        ValueAnimator translationY = ValueAnimator.ofFloat(y, height); //현재 위치에서 화면 최하단까지 움직이는 애니메이션
         translationY.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) { //애니메이션의 frame 마다 호출 -> View의 y좌표 & Enemy 객체의 y좌표 값 갱신
@@ -61,7 +61,7 @@ public class Enemy extends Item {
             public void onAnimationEnd(Animator animation) {
                 if(alive) {
                     board.removeLife();
-                    remove();
+                    remove(); //화면을 벗어났으므로 더 이상 필요 없음
                 }
             }
 

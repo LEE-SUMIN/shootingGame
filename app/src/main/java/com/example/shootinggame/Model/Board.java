@@ -52,7 +52,7 @@ public class Board {
     }
 
     /**
-     * 게임 시작
+     * 게임 시작 변수 세팅
      * @param bulletLimit : 한 화면에 존재할 수 있는 bullet 개수
      */
     public void start(int life, int bulletLimit) {
@@ -107,13 +107,13 @@ public class Board {
 
     /**
      * 화면 상에 존재하는 bullet들을 HashMap으로 관리하기 위해 각각의 Bullet에 id를 부여한다.
-     * 한 화면 상에 존재하는 bullet은 최대 5개이기 때문에 id가 무한히 증가할 필요는 없다 -> modular 연산 사용
      * @return
      */
     private int setBulletId() {
-        int id = bulletId;
-        bulletId = (bulletId + 1) % 10;
-        return id;
+        while(bulletHashmap.containsKey(bulletId)) {
+            bulletId = (bulletId + 1) % 10;
+        }
+        return bulletId;
     }
 
     /**
@@ -122,9 +122,10 @@ public class Board {
      * @return
      */
     private int setEnemyId() {
-        int id = enemyId;
-        enemyId = (enemyId + 1) % 30;
-        return id;
+        while(enemyHashMap.containsKey(enemyId)) {
+            enemyId = (enemyId + 1) % 30;
+        }
+        return enemyId;
     }
 
     /**
@@ -181,7 +182,6 @@ public class Board {
                     }
                 }
             }
-
         }
     }
 
@@ -226,7 +226,7 @@ public class Board {
 
     /**
      * 존재하는 bullet과 enemy를 모두 제거
-     * (게임 시작 전에 호출되면서 전체 board를 초기화 할 때 사용)
+     * (게임이 종료될 때 호출되면서 전체 board를 초기화 할 때 사용)
      */
     public void clear() {
         running = false;

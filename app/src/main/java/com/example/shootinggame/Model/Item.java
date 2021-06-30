@@ -37,7 +37,8 @@ public abstract class Item {
     }
 
     /**
-     * 충돌이 일어나지 않았는지, 화면을 벗어나지 않았는지 확인
+     * enemy: 충돌이 이미 일어나서 죽은 객체가 아닌지 확인
+     * bullet: 충돌이 이미 일어나서 죽은 객체가 아닌지, 반사가 1회 이상 진행되지 않았는지 확인
      * @return
      */
     public boolean isValid() {
